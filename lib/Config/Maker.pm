@@ -51,7 +51,7 @@ use Config::Maker::Grammar; # Build the parser...
 
 our $parser = Config::Maker::Grammar->new();
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 use Exporter;
 our @ISA = qw(Exporter);

@@ -43,15 +43,16 @@ eval {
     require Encode;
     require Encode::Alias;
     require PerlIO::encoding;
+    $::ENCODING = I18N::Langinfo::langinfo(&I18N::Langinfo::CODESET);
+    Encode::Alias::define_alias('system' => $::ENCODING);
 };
 
 if($@) { # Encoding stuff not available!
+    undef $::ENCODING;
     *encode = \&_encode_only_system;
     *decode = \&_encode_only_system;
     *encmode = \&_binmode_only_system;
 } else { # Wow! Encoding is available!
-    $::ENCODING = I18N::Langinfo::langinfo(&I18N::Langinfo::CODESET);
-    Encode::Alias::define_alias('system' => $::ENCODING);
     *encode = \&Encode::encode;
     *decode = \&Encode::decode;
     *encmode = \&_binmode_encoding;

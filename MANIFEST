@@ -1,14 +1,8 @@
-META.yml
-README
+MakeTools.PM
 Makefile.PL
-MANIFEST
-ChangeLog
-.arch-inventory
-Build.PL
 README.pod
 configit
 lib/Config/Maker.pm
-lib/Config/Maker/.arch-inventory
 lib/Config/Maker/Config.pm
 lib/Config/Maker/Driver.pm
 lib/Config/Maker/Encode.pm
@@ -30,6 +24,5 @@ t/template.t
 testconfig
 testmetacfg
 testtemplate
-util/Module/Build/Arch.pm
-util/Module/Build/Compat.pm
 vim/syntax/confmake.vim
+MANIFEST
