@@ -1,0 +1,45 @@
+--- #YAML:1.0
+name: Config-Maker
+version: 0.001
+author:
+  - Jan Hudec <bulb@ucw.cz>
+abstract: File (especialy config) generation library.
+license: perl
+requires:
+  Parse::RecDescent: 1.80
+  perl: 5.6.1
+provides:
+  Config::Maker:
+    file: lib/Config/Maker.pm
+    version: tree-version
+  Config::Maker::Config:
+    file: lib/Config/Maker/Config.pm
+  Config::Maker::Driver:
+    file: lib/Config/Maker/Driver.pm
+  Config::Maker::Encode:
+    file: lib/Config/Maker/Encode.pm
+  Config::Maker::Eval:
+    file: lib/Config/Maker/Path.pm
+  Config::Maker::Metaconfig:
+    file: lib/Config/Maker/Metaconfig.pm
+  Config::Maker::Option:
+    file: lib/Config/Maker/Option.pm
+  Config::Maker::Path:
+    file: lib/Config/Maker/Path.pm
+  Config::Maker::Path::AnyPath:
+    file: lib/Config/Maker/Path/AnyPath.pm
+  Config::Maker::Path::Parent:
+    file: lib/Config/Maker/Path/Parent.pm
+  Config::Maker::Path::Root:
+    file: lib/Config/Maker/Path/Root.pm
+  Config::Maker::Path::This:
+    file: lib/Config/Maker/Path/This.pm
+  Config::Maker::Schema:
+    file: lib/Config/Maker/Schema.pm
+  Config::Maker::Type:
+    file: lib/Config/Maker/Type.pm
+  Config::Maker::Value:
+    file: lib/Config/Maker/Value.pm
+  Config::Maker::Value::List:
+    file: lib/Config/Maker/Value.pm
+generated_by: Module::Build version 0.26

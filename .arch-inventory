@@ -1,0 +1,3 @@
+backup ^(Build|Makefile.*|_build|blib|MANIFEST.*|META.yml|Config-Maker-[0-9].*|README|ChangeLog)$
+
+# arch-tag: 980d28dd-ea8a-447c-9ada-3828ff471091

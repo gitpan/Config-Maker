@@ -1,0 +1,45 @@
+schema {
+    type class {
+	toplevel;
+	named_group [ identifier ];
+	contains any ip;
+	type any host {
+	    named_group [ dns_name ];
+	    contains one ip;
+	    type opt mac {
+		simple [ ipv4 ];
+	    }
+	    type opt public {
+		simple [ ipv4 ];
+	    }
+	}
+	type any net {
+	    simple [ ipv4_mask ];
+	}
+	type any port {
+	    anon_group;
+	    type one from {
+		simple [ ipv4_port ];
+	    }
+	    type one to {
+		simple [ ipv4_port ];
+	    }
+	}
+    }
+
+    type ip {
+	simple [ ipv4 ];
+    }
+}
+
+search-path '.';
+output-dir '.';
+
+config 'testconfig' {
+    template {
+	src 'testtemplate';
+	out ',output';
+	enc iso-8859-2;
+    }
+}
+# arch-tag: c474ae02-d50e-49c2-aba5-63cb4fad8e81

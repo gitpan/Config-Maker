@@ -1,0 +1,23 @@
+Žluťoučcí koňově budou úpět ďábelské kódy!
+[# Komentář #]
+[{ print "Čau.\n" }]
+[$ map class $]
+Třída: [+ value +]
+[$ map net|ip $]
+    Síť: [+ value +]
+[/]
+[$ map host $]
+    Stanice: [+value+]
+[$ map * $]
+	[+type+] => [+value+]
+[/]
+[$ endmap $]
+[$ map port $]
+    Port: [!from!] -> [!to!]
+[/]
+[$ endmap $]
+Žluťoučcí koňové doúpěli. Doufám, že dobře!
+[#
+vim: set fenc=utf-8:
+arch-tag: d0117a53-e179-4d32-8c1c-c8b2d04e0522
+#]
