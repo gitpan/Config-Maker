@@ -98,7 +98,7 @@ sub _do_type {
     } $_->get('type') ];
     push @{$_{contexts}}, any => '/' if $_->get('toplevel');
     $_{actions} = [ map {
-	eval "package Config::Maker::Eval; sub $_->{-value}";
+	Config::Maker::exe("sub $_->{-value}");
     } $_->get('action') ];
     $_->{-data} = type(\%_);
 }

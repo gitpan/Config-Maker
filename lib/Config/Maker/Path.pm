@@ -50,13 +50,10 @@ sub code_to_sub {
     my ($self, $code) = @_;
 
     return sub { 1; } unless $code;
+    Config::Maker::DBG("Code-to-sub: qq{$code}");
     $code =~ s/\A\(//;
     $code =~ s/\)\Z//;
-    my $sub = eval qq{
-	package Config::Maker::Eval;
-	sub { $code; };
-    };
-    die $@ if $@;
+    my $sub = Config::Maker::exe("sub { $code; };");
     return $sub;
 }
 

@@ -40,7 +40,7 @@ exec 3> "$tmp"
 #printf '#!/bin/sh\n\n' >&3
 
 if test -z "$saveas"; then
-    read line
+    read -r line
     case $line in
 	\#NAME\ *)
 	    saveas=${line##\#NAME };;
@@ -50,7 +50,7 @@ if test -z "$saveas"; then
     esac
 fi
 
-read line
+read -r line
 case $line in
     \#!*)
 	printf '%s\n\n' "$line" >&3;;
@@ -69,7 +69,7 @@ case $line in
 	printf '#!/bin/sh\n\n%s\n' "$line" >&3;;
 esac
 
-while read line; do
+while read -r line; do
     case $line in
 	\#COMMIT)
 	    mv -b -f "$tmp" "$saveas"

@@ -164,7 +164,8 @@ specified or sublists (again in square brackets).
 
 =item perlcode
 
-A block of perl code in curly braces (C<{}>).
+A block of perl code in curly braces (C<{}>). The perlcode will be evaluated in
+L<Config::Maker::Eval> module.
 
 =back
 
@@ -296,7 +297,8 @@ A comment. It is replaced by an empty string.
 
 =item C<[{>I<perl code>C<}]>
 
-A perl code is replaced by everything it prints and it's result.
+A perl code is replaced by everything it prints and it's result. The code will
+again be evaluated in L<Config::Maker::Eval> module.
 
 =item C<[+>I<key>C<+]>
 
@@ -368,7 +370,8 @@ Generic syntax for a component is I<type>C<:>I<value>C<(>I<condition>C<)>.
 The I<type> is a wildcard matching type of the option and I<value> is
 a wildcard matching the value. The I<condition> is a perl expression, that will
 get processed option in current topic (C<$_>) and should return true if that
-option should match.
+option should match. It will be evaluated in the L<Config::Maker::Eval>
+module.
 
 Components can be ommited. Shorthand notations allowed are: I<type>,
 C<:>I<value>, I<type>C<(>I<condition>C<)> and C<:>I<value>C<(>I<condition>C<)>.
@@ -397,7 +400,7 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-perl(1), Config::Maker(3pm).
+perl(1), Config::Maker(3pm), Config::Maker::Eval(3pm).
 
 =cut
 # arch-tag: 74557653-4fb9-4b74-8dfb-40c66753aa1a

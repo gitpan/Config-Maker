@@ -52,7 +52,7 @@ use Config::Maker::Grammar; # Build the parser...
 
 our $parser = Config::Maker::Grammar->new();
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 use Exporter;
 our @ISA = qw(Exporter);
@@ -64,6 +64,7 @@ require Config::Maker::Config;
 require Config::Maker::Driver;
 require Config::Maker::Schema;
 require Config::Maker::Metaconfig;
+require Config::Maker::Eval;
 
 our $fenc = qr/(?:(?:(?:file)?en)coding|fenc)[:=]\s*/;
 
@@ -82,14 +83,16 @@ sub environment {
 
 sub unquote_single {
     local $_ = $_[0];
-    s/\\'/'/g;
     s/\A'//;
     s/'\Z//;
+    s/\\'/'/g;
     return $_;
 }
 
 sub unquote_double {
     local $_ = $_[0];
+    s/\A"//;
+    s/"\Z//;
     s/\\(			# Backslashed stuff:
 	  ["\$\\]		    # Things to escape
 	| [tnrfbae]		    # Simple escape codes
@@ -104,8 +107,6 @@ sub unquote_double {
       / $1 ? unbackslash($1) :
 	 $2 ? environment($2) :
 	 $3 ? environment($3) : die "This match does not work"/xe;
-    s/\A"//;
-    s/"\A//;
     return $_;
 }
 
@@ -123,6 +124,9 @@ sub limit {
 
 # A non-catching eval...
 sub exe {
+    no warnings;
+    no strict;
+    DBG "Evaluating qq{$_[0]} in " . (wantarray ? "list" : (defined wantarray ? "scalar" : "void")) . " context";
     if(wantarray) {
 	my @r = eval qq/package Config::Maker::Eval; $_[0]/;
 	die $@ if $@;

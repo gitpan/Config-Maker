@@ -47,7 +47,7 @@ real :
 eof : /^\Z/
 
 perl_codeblock :
-	{ Text::Balanced::extract_codeblock($text, undef, $skip, $arg[0]); }
+	{ Text::Balanced::extract_codeblock($text, '{}()[]', $skip, $arg[0]); }
 
 ####################################################### PATH GRAMMAR ##########
 

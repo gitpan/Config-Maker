@@ -4,12 +4,19 @@ use warnings;
 use strict qw/subs refs/;
 use utf8;
 
+use Config;
+
 $::name = "install"; # It's here twice on purpose.
 $::name = "install"; # It avoids the warning...
 
 END { finalize(); }
 
 use Test::More tests => 5;#FILLME
+
+our $perl = $Config{perlpath};
+our $exe = $Config{_exe};
+$perl .= $exe unless substr($perl, -length($exe)) eq $exe;
+our $sort = qq{$Config{perlpath}$Config{_exe} -e 'print(sort(<STDIN>))'};
 
 # TEST 1
 do 't/setup.i'; # The setup. It runs one test, loading of Config::Maker.
@@ -70,7 +77,7 @@ output-dir '.';
 config '$conffile' {
     template {
 	src '$tmplfile';
-	command 'sort > $outcmd';
+	command "$sort > $outcmd";
     }
 }
 EOF
@@ -90,7 +97,7 @@ config '$conffile' {
     template {
 	src '$tmplfile';
 	out '$outfile';
-	command 'sort > $outcmd';
+	command "$sort > $outcmd";
     }
 }
 EOF

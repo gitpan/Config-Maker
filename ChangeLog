@@ -2,6 +2,53 @@
 # arch-tag: automatic-ChangeLog--bulb@ucw.cz--pub-1/config-it--release--0
 #
 
+2004-11-25 21:12:19 GMT	Jan Hudec <bulb@ucw.cz>	patch-6
+
+    Summary:
+      Perl code utilities, bugfixes.
+    Revision:
+      config-it--release--0--patch-6
+
+     * Config/Maker/Eval: Several useful functions added for use in
+       template perl code and path conditions.
+     * Fixed some quoting bugs.
+     * Attempt to fix t/install.t test for Win32.
+     * Evals are now done with strict and warnings turned off.
+    
+    Patches applied:
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-79
+       Fixed run-and-save so it's transparent...
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-80
+       No strict in eval
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-81
+       Added functions to Config::Maker::Eval
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-82
+       Fixed perl_codeblock bug.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-83
+       Fixed double-quoted literals, perhaps fixed invoke.t on windows.
+    
+
+    new files:
+     lib/Config/Maker/Eval.pm t/code.t
+
+    modified files:
+     configit lib/Config/Maker.pm lib/Config/Maker/Grammar.pm.PL
+     lib/Config/Maker/Path.pm lib/Config/Maker/Schema.pm
+     run-and-save t/install.t
+
+    new patches:
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-79
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-80
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-81
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-82
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-83
+
+
 2004-11-17 10:34:46 GMT	Jan Hudec <bulb@ucw.cz>	patch-5
 
     Summary:
