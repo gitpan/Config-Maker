@@ -90,8 +90,9 @@ sub _find {
     }
 }
 
-sub _qual {
+sub _qual($$) {
     my ($file, $dir) = @_;
+    return unless $file;
     if(File::Spec->file_name_is_absolute($file)) {
 	return $file;
     } else {
@@ -177,6 +178,10 @@ sub do {
 		    exec $dest;
 		    die "Failed to exec $dest: $!";
 		}
+		# The parent...
+		waitpid($pid, 0) != -1
+		    or croak "Wait failed: $!";
+		croak "Command failed: $?" if "$?";
 	    }
 	}
     }

@@ -2,6 +2,44 @@
 # arch-tag: automatic-ChangeLog--bulb@ucw.cz--pub-1/config-it--release--0
 #
 
+2004-11-17 10:34:46 GMT	Jan Hudec <bulb@ucw.cz>	patch-5
+
+    Summary:
+      Fixed invoking commands.
+    Revision:
+      config-it--release--0--patch-5
+
+     * Config/Maker/Metaconfig: The template directive without out
+       directive did not work. Fixed and added test. Also the command is
+       now waited for and installation fails if it exits with non-zero
+       status.
+     * MakeTools.PM: Fixed bogosity that caused ommision of README in
+       releases.
+    
+    Patches applied:
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-76
+       Fix nasty bug in installation.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-77
+       Added waiting for commands
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-78
+       Fixed MakeTools.PM misfeature.
+    
+
+    new files:
+     t/install.t
+
+    modified files:
+     MakeTools.PM Makefile.PL lib/Config/Maker/Metaconfig.pm
+
+    new patches:
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-76
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-77
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-78
+
+
 2004-11-13 22:13:07 GMT	Jan Hudec <bulb@ucw.cz>	patch-4
 
     Summary:

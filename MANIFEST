@@ -20,8 +20,11 @@ lib/Config/Maker/Value.pm
 run-and-save
 t/big.t
 t/encode.t
+t/install.t
 t/setup.i
 t/template.t
 vim/syntax/confmake.vim
+README
 MANIFEST
 ChangeLog
+META.yml                                 Module meta-data (added by MakeMaker)

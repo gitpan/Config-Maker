@@ -7,6 +7,7 @@ use ExtUtils::MakeMaker;
 @extra_inv = qw(README);
 
 require "MakeTools.PM";
+inventory();
 
 for(keys %PM) {
     delete $PM{$_} if /^util/;

@@ -116,15 +116,17 @@ clean_build :
 
 EOS
 
-@inv_full = tla_inventory;
-@inv_full = manifest_inventory unless @inv_full;
+sub inventory {
+    @inv_full = tla_inventory;
+    @inv_full = manifest_inventory unless @inv_full;
 
-@inv = map {
-    /\.pm$/ ? putPM($_) :
-    /\.xs$/ ? putXS($_) :
-    /\.PL$/ ? putPL($_) :
-	    ($_);
-} @inv_full;
+    @inv = map {
+	/\.pm$/ ? putPM($_) :
+	/\.xs$/ ? putXS($_) :
+	/\.PL$/ ? putPL($_) :
+	($_);
+    } @inv_full;
+}
 
 sub macro {
     +{ BDIRS => join(' ', @bdirs) };
