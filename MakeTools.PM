@@ -22,10 +22,11 @@ sub tla_inventory {
 	    chomp;
 	    push @inv, $_;
 	}
-	for(@extra_inv, 'MANIFEST') {
+	for(@extra_inv, 'MANIFEST', 'ChangeLog') {
 	    print MAN "$_\n";
 	    push @inv, $_;
 	}
+	system("tla changelog > ChangeLog");
     };
     return @inv;
 }

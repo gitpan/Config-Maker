@@ -38,6 +38,7 @@ BEGIN {
 	*DUMP = sub {};
     }
 
+    LOG($::ENCODING_LOG) if $::ENCODING_LOG;
     if($::ENCODING) {
 	LOG("Selected $::ENCODING as system encoding");
     } else {
@@ -51,7 +52,7 @@ use Config::Maker::Grammar; # Build the parser...
 
 our $parser = Config::Maker::Grammar->new();
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 use Exporter;
 our @ISA = qw(Exporter);

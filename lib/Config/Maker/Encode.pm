@@ -44,6 +44,15 @@ eval {
     require Encode::Alias;
     require PerlIO::encoding;
     $::ENCODING = I18N::Langinfo::langinfo(&I18N::Langinfo::CODESET);
+    if(!$::ENCODING) {
+	$::ENCODING_LOG = "Can't get your locale encoding! Assuming ASCII.";
+	Encode::find_encoding($::ENCODING = 'ascii')
+	    or die "Can't get ascii codec!";
+    } elsif(!Encode::find_encoding($::ENCODING)) {
+	$::ENCODING_LOG = "Your locale encoding `$::ENCODING' it's not supported by Encode!";
+	Encode::find_encoding($::ENCODING = 'ascii')
+	    or die "Can't get ascii codec!";
+    }
     Encode::Alias::define_alias('system' => $::ENCODING);
 };
 

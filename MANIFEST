@@ -19,6 +19,7 @@ lib/Config/Maker/Type.pm
 lib/Config/Maker/Value.pm
 run-and-save
 t/big.t
+t/encode.t
 t/setup.i
 t/template.t
 testconfig
@@ -26,3 +27,4 @@ testmetacfg
 testtemplate
 vim/syntax/confmake.vim
 MANIFEST
+ChangeLog

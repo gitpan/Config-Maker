@@ -53,6 +53,8 @@ if($ENV{DEBUG}) {
 }
 use_ok('Config::Maker');
 
+print STDERR $::ENCODING_LOG, "\n" if $::ENCODING_LOG;
+
 1;
 
 # arch-tag: e6538524-fdd6-419e-9b81-41dd0ba6e98c
