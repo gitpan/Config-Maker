@@ -22,9 +22,6 @@ t/big.t
 t/encode.t
 t/setup.i
 t/template.t
-testconfig
-testmetacfg
-testtemplate
 vim/syntax/confmake.vim
 MANIFEST
 ChangeLog

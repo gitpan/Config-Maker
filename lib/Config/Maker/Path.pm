@@ -160,14 +160,76 @@ __END__
 
 =head1 NAME
 
-Config::Maker::Path - FIXME
+Config::Maker::Path - Selects elements from config.
 
 =head1 SYNOPSIS
 
-  use Config::Maker::Path
-FIXME
+  use Config::Maker
+
+  $path = Config::Maker::Path->new(
+    -type => $typepattern,
+    -value => $valuepattern,
+    -code => $perlcode,
+    -tail => $rest);
+
+  $path = Config::Maker::Path::AnyPath->new(
+    -tail => $rest);
+
+  $path = Config::Maker::Path::Root->new(
+    -tail => $rest);
+
+  $path = Config::Maker::Path::Parent->new(
+    -tail => $rest);
+
+  $path = Config::Maker::Path::This->new(
+    -tail => $rest);
+
+  $path = Config::Maker::Path->make($pathstring)
+
+  $path->find($config_element);
+
+  $config_element->get($path);
+  $config_element->get($pathstring);
 
 =head1 DESCRIPTION
+
+Paths are used to select config elements to put in a template.
+
+Path is a list of component. Each of them can be either normal (of type
+C<Config::Maker::Path>), or special (of some subclass type). Each component,
+when matched from some configuration element, selects some set of matching
+elemens. From these elements, rest of the path is matched.
+
+A normal component specifies a type pattern, a value pattern and a match
+code. A config element matches such component if it is a child of staring
+element, it's type matches given pattern, it's value matches given pattern and
+the code returns true.  All of these have defaults. Default patterns are
+C<*> and default code is C<1>. Note, that the code is not a closure, but rather
+a string, that is wrapped to a closure automagicaly.
+
+The special components are C<AnyPath>, C<Root>, C<Parent> and C<This>.
+
+The C<AnyPath> element matches starting element and all it's descendants (even
+indirect).
+
+The C<Root> always returns the global $Config::Maker::Eval::config->{root}
+element, no matter what the starting element was.
+
+The C<Parent> matches parent of starting element.
+
+The C<This> matches the starting element.
+
+Matching is done recursively using the C<find> and C<match> methods. The
+C<find> method calls C<match> method of given component to get list of matching
+elements and then recurses to each of them if C<-tail> is defined, and pushes
+them in the accumulator otherwise. It returns the acumulator (an arrayref).
+
+There are two construcotrs for paths. The C<new> constructor needs parsed
+specification. It however builds regexes and coderefs from strings itself.
+
+The higher-level C<make> constructor takes a string describing whole path (see
+L<configit> for grammar description), parses it and builds the path. It uses
+L<Config::Maker::Grammar> to do the dirty work.
 
 =head1 AUTHOR
 

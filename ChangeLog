@@ -2,6 +2,52 @@
 # arch-tag: automatic-ChangeLog--bulb@ucw.cz--pub-1/config-it--release--0
 #
 
+2004-11-13 22:13:07 GMT	Jan Hudec <bulb@ucw.cz>	patch-4
+
+    Summary:
+      Fixed "cross-device link" problems
+    Revision:
+      config-it--release--0--patch-4
+
+     * Config/Maker/Metaconfig: Temporary files are now created in the
+       same directory as output to avoid possibility of rename being
+       cross-device.
+     * Mostly everywhere: Added some documentation.
+     * test*: removed crappy test files.
+    
+    Patches applied:
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-72
+       Removed test crap.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-73
+       Some documentation
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-74
+       Temporary files co-local with output
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-75
+       Some more documentation.
+    
+
+    removed files:
+     testconfig testmetacfg testtemplate
+
+    modified files:
+     lib/Config/Maker/Driver.pm lib/Config/Maker/Encode.pm
+     lib/Config/Maker/Metaconfig.pm lib/Config/Maker/Option.pm
+     lib/Config/Maker/Path.pm lib/Config/Maker/Path/AnyPath.pm
+     lib/Config/Maker/Path/Parent.pm lib/Config/Maker/Path/Root.pm
+     lib/Config/Maker/Path/This.pm lib/Config/Maker/Schema.pm
+     lib/Config/Maker/Type.pm lib/Config/Maker/Value.pm
+
+    new patches:
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-72
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-73
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-74
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-75
+
+
 2004-11-12 09:16:35 GMT	Jan Hudec <bulb@ucw.cz>	patch-3
 
     Summary:

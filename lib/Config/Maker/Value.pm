@@ -26,14 +26,19 @@ __END__
 
 =head1 NAME
 
-Config::Maker::Value - FIXME
+Config::Maker::Value - stringification for non-string values
 
 =head1 SYNOPSIS
 
-  use Config::Maker::Value
-FIXME
+  # Only used by Config::Maker::Grammar when constructing special value types.
 
 =head1 DESCRIPTION
+
+This is a base class for option values, that are not represented by strings.
+
+It currently only provides a C<List> subclass, that overloads stringification
+so that the list is printed in square brackets and space-separated. That
+matches C<nestlist> syntax.
 
 =head1 AUTHOR
 

@@ -194,14 +194,86 @@ __END__
 
 =head1 NAME
 
-Config::Maker::Type - FIXME
+Config::Maker::Type - describe directive type
 
 =head1 SYNOPSIS
 
-  use Config::Maker::Type
-FIXME
+  use Config::Maker
+
+  my $type = Config::Maker::Type->new(
+    name => $name,
+    format => [$typespec => @valuespec],
+    children => \@children,
+    contexts => \@parents,
+    checks => [$check => $path, ...],
+    actions => \@actions
+  )
+    
+  $type->add($othertype);
+  $othertype->addto($type);
+  
+  $type->addchecks(@checks)
 
 =head1 DESCRIPTION
+
+Config::Maker::Type describe available types of options (and metaconfig
+options). Each type has 5 parameters. These are:
+
+=over 4
+
+=item name
+
+The name of the directive. This is the keyword used in config to specify option
+of this type.
+
+=item format
+
+This is a listref, that is passed to the C<body> production in
+L<Config::Maker::Grammar>. The first element is either C<simple>,
+C<named_group> or C<anon_group>, to mean option without block, option with
+value and block and option with only a block respectively. For the first two,
+rest of the list is passed to the C<value> production of the grammar.
+
+=item children
+
+This is a list of types, that should be recognized in the body of this type.
+Parser won't recognize other types when parsing body of this type.
+
+=item checks
+
+This is a list of keyword-path pairs, that specify how many of different
+subtypes can appear in an option of this type. The keys may be C<none>, C<opt>,
+C<one>, C<mand> or C<any>, which mean the following path must have no, at most
+one, exactly one, at least one and any number of matches respectively. An error
+is reported when those conditions are not met.
+
+=item actions
+
+This is a list of perl closures, that shall be invoked when option of this type
+is parsed. It can do whatever it wants.
+
+=back
+
+The constructor takes these five named arguments and one extra, C<contexts>.
+The new element is added to those types as a child.
+
+In addition to constructor, there are three methods, C<add>, C<addto> and
+C<addchecks>. These allow to add children, parents and checks to an already
+constructed type.
+
+For description how types are constructed from the schema in metaconfig see
+L<configit(1)>.
+
+=head2 Special types
+
+There are two special types, C</> and C<*>, accessible through class methods
+C<root> and C<repository>.
+
+The C</> special type represents the top-level of a config or metaconfig file.
+On top-level, only option types added to this special type are recognized.
+
+The C<*> special type is a repository of types. It is used in schema to store
+types for reuse.
 
 =head1 AUTHOR
 

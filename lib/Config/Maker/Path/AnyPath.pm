@@ -24,17 +24,6 @@ sub text { '**' }
 
 __END__
 
-=head1 NAME
-
-Config::Maker::Path::AnyPath - FIXME
-
-=head1 SYNOPSIS
-
-  use Config::Maker::Path::AnyPath
-FIXME
-
-=head1 DESCRIPTION
-
 =head1 AUTHOR
 
 Jan Hudec <bulb@ucw.cz>
@@ -47,8 +36,4 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =head1 SEE ALSO
-
-configit(1), perl(1), Config::Maker(3pm).
-
-=cut
 # arch-tag: cbf3e128-9aee-459d-a6cc-e05e1d52bff3

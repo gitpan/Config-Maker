@@ -103,14 +103,62 @@ __END__
 
 =head1 NAME
 
-Config::Maker::Option - FIXME
+Config::Maker::Option - One configuration element.
 
 =head1 SYNOPSIS
 
-  use Config::Maker::Option
-FIXME
+  use Config::Maker
+
+  # Only constructed from the config parser
+  
+  $option->type
+  $option->id
+  "$option"
+
+  $option->get($path)
+  $option->get1($path)
+  $option->getval($path, $default)
 
 =head1 DESCRIPTION
+
+C<Config::Maker::Option> objects represent individual elements of the
+configuration.
+
+Each C<Config::Maker::Option> object has three attributes. The C<-type>, which
+is a C<Config::Maker::Type> object, the C<-value>, which is a string and the
+C<-children> which is a list of C<Config::Maker::Option> objects.
+
+The type can be accessed via the C<type> method (read-only), and the C<value>
+may be accessed by simple stringification. The C<id> method is useful for
+reporting option in errors.
+
+In addition to basic access, there are several convenience methods for doing
+path lookups. They are esentialy reversed C<Config::Maker::Path::find> method,
+but they can construct the path from a string.
+
+=over 4
+
+=item get
+
+This is the simplest one. It is just calls C<Config::Maker::Path::find> with
+invocant as a starting element, constructing the path with
+C<Config::Maker::Path::make> if it get's a string. See L<Config::Maker::Path>.
+
+Unlike C<find>, which returns an arrayref, this returns a list in list context
+and first match in scalar context.
+
+=item get1
+
+This is like C<get> above, but it signal an error unless the path matches
+exactly one element.
+
+=item getval
+
+This method takes an extra argument, a default. If the path does not match, it
+returns the default. If it matches once, it returns the match. If it matches
+more than once, it signals an error.
+
+=back
 
 =head1 AUTHOR
 

@@ -71,14 +71,21 @@ __END__
 
 =head1 NAME
 
-Config::Maker::Driver - FIXME
+Config::Maker::Driver - Template processor
 
 =head1 SYNOPSIS
 
-  use Config::Maker::Driver
-FIXME
+  # This is normaly only used from Config::Maker::Metaconfig->do
 
 =head1 DESCRIPTION
+
+This processes a template. Much of it's work is actualy done by the
+C<Config::Maker::Grammar> parser. It has two methods, C<apply> and C<process>.
+C<process> method is just a wrapper that appropriately opens files, sets up
+encodings and runs the parser using starting rule C<template>. The C<apply>
+method is used to print out the tree of closures and text snippets built by the
+parser. The closures are reponsible to call C<apply> for their enclosed
+subtrees.
 
 =head1 AUTHOR
 

@@ -24,17 +24,6 @@ sub text { '..' }
 
 __END__
 
-=head1 NAME
-
-Config::Maker::Path::Parent - FIXME
-
-=head1 SYNOPSIS
-
-  use Config::Maker::Path::Parent
-FIXME
-
-=head1 DESCRIPTION
-
 =head1 AUTHOR
 
 Jan Hudec <bulb@ucw.cz>
@@ -45,10 +34,6 @@ Copyright 2004 Jan Hudec. All rights reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-configit(1), perl(1), Config::Maker(3pm).
 
 =cut
 # arch-tag: 0a096ff5-f72a-47ee-b08f-4d06ac958d46

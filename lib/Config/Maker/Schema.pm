@@ -141,14 +141,20 @@ __END__
 
 =head1 NAME
 
-Config::Maker::Schema - FIXME
+Config::Maker::Schema - defines the schema directive
 
 =head1 SYNOPSIS
 
-  use Config::Maker::Schema
-FIXME
+  # Only used internaly from Config::Maker
 
 =head1 DESCRIPTION
+
+This file defines schema directive and it's subdirectives for use in the
+metaconfig. For syntax and semantics of these directives see L<configit(1)>.
+
+The schema directive is processed from a type action at the point where parsing
+is finished. It means, that it can even be used at the begining of the config,
+not just in metaconfig.
 
 =head1 AUTHOR
 
