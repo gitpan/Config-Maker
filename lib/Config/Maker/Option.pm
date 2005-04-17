@@ -37,6 +37,14 @@ sub _ref(\%$;$) {
     }
 }
 
+sub _flatten {
+    map {
+	ref($_) eq 'ARRAY' ?
+	    _flatten(@$_) :
+	    $_;
+    } @_;
+}
+
 sub new {
     my ($class, %args) = @_;
     my $type = _ref(%args, '-type');
@@ -49,6 +57,8 @@ sub new {
     croak "Unknown arguments: " . join(', ', keys %args)
 	if %args;
     bless $self, $class;
+
+    $self->{-children} = [_flatten(@{$self->{-children}})];
 
     foreach my $child (@{$self->{-children}}) {
 	$child->{-parent} = $self;

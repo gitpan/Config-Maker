@@ -9,7 +9,7 @@ $::name = "template"; # It avoids the warning...
 
 END { finalize(); }
 
-use Test::More tests => 14;#FILLME
+use Test::More tests => 15;#FILLME
 
 # TEST 1
 do 't/setup.i'; # The setup. It runs one test, loading of Config::Maker.
@@ -235,6 +235,26 @@ ELSE
 ELSE
 ELSE
 seven has one bar
+OUT
+
+# TEST 15
+$include = puttemp('incl1.tinc', <<EOF);
+Type = [+type+], Value = [+value+]
+EOF
+
+expands_to('incl1', <<IN, <<OUT, "Include directive");
+[\$ map */bar|baz \$]
+[<$include>]
+[/]
+IN
+Type = bar, Value = aaa
+Type = bar, Value = aab
+Type = bar, Value = abb
+Type = bar, Value = bbb
+Type = baz, Value = xxx
+Type = baz, Value = yyy
+Type = baz, Value = zzz
+Type = bar, Value = b0
 OUT
 
 # arch-tag: d06f6f44-31c4-4ba3-8b26-0b32e3829c0a

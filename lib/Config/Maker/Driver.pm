@@ -11,6 +11,7 @@ use Config::Maker;
 use Config::Maker::Encode;
 use Config::Maker::Option;
 use Config::Maker::Path;
+use Config::Maker::Tee;
 
 my $parser = $Config::Maker::parser;
 
@@ -28,8 +29,39 @@ sub apply {
 
 sub process {
     my ($class, $file, $config, $outfh, $outenc) = @_;
+
+    croak "Invalid config!"
+	unless UNIVERSAL::isa($config, 'Config::Maker::Config');
+
+    local $Config::Maker::Eval::config = $config;
+    local $_ = $config->{root};
+
+    my ($code, $enc) = $class->load($file);
+    
+    $outenc ||= $enc;
+    encmode($outfh, $outenc);
+
+    LOG("Processing the template with output in $outenc");
+    my $old = select;
+    select $outfh;
+    eval { $code->() };
+    select $old;
+    die $@ if $@;
+}
+
+our %cache;
+
+sub load {
+    my ($class, $file) = @_;
     my ($fh, $text);
     my $enc = 'system';
+
+    $file = Config::Maker::locate($file);
+
+    if($cache{$file}) {
+	DBG "Getting template $file from cache";
+	return wantarray ? @{$cache{$file}} : $cache{$file}[0];
+    }
 
     open($fh, '<', $file)
 	or croak "Failed to open $file: $!";
@@ -44,25 +76,15 @@ sub process {
        $enc = $1;
     }
     $text = decode($enc, $text);
-    $outenc ||= $enc;
-    encmode($outfh, $outenc);
 
-    croak "Invalid config!"
-	unless UNIVERSAL::isa($config, 'Config::Maker::Config');
-
-    local $Config::Maker::Eval::config = $config;
-    local $_ = $config->{root};
-
-    LOG("Processing template $file encoded $enc with output in $outenc");
+    LOG("Loading template $file encoded $enc");
     my $out = $parser->template($text);
     croak "Template file $file contained errors"
 	unless defined $out;
 
-    my $old = select;
-    select $outfh;
-    eval { apply(@$out); };
-    select $old;
-    die $@ if $@;
+    my $code = sub { apply(@$out); };
+    $cache{$file} = [$code, $enc];
+    return wantarray ? ($code, $enc) : $code;
 }
 
 1;

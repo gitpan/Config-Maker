@@ -110,7 +110,7 @@ eval {
 IN
 OUT
 };
-like($@, qr{^//foo:none should}, "Get1-2: Get1 functions no match");
+like($@, qr{^/foo:none should}, "Get1-2: Get1 functions no match");
 
 # TEST 7
 eval {
@@ -119,7 +119,7 @@ eval {
 IN
 OUT
 };
-like($@, qr{^//\*\*/foo should}, "Get1-3: Get1 functions multiple matches");
+like($@, qr{^/\*\*/foo should}, "Get1-3: Get1 functions multiple matches");
 
 # TEST 8
 &ok(expand('ValueType', <<'IN', <<'OUT', "Value and Type access"));

@@ -1,4 +1,4 @@
-package Config::Maker::Path::Root;
+package Config::Maker::Path::Meta;
 
 use utf8;
 use warnings;
@@ -13,16 +13,16 @@ sub new {
 }
 
 sub match {
-    $Config::Maker::Eval::config->{root};
+    $Config::Maker::Eval::config->{meta};
 }
 
 # Inherited find...
 
-sub text { '/' };
+sub text { 'META:' };
 
 sub str {
     my ($self) = @_;
-    '/' . ($self->{-tail} ? $self->{-tail}->str : '');
+    'META:' . ($self->{-tail} ? $self->{-tail}->str : '');
 }
 
 1;
@@ -40,5 +40,9 @@ Copyright 2004 Jan Hudec. All rights reserved.
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+=head1 SEE ALSO
+
+configit(1), perl(1), Config::Maker(3pm).
+
 =cut
-# arch-tag: 7fa5356d-0bfd-439f-a896-ec7436f7f387
+# arch-tag: 7546d781-84ec-41af-95e1-31ffb5db875c

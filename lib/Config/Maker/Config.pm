@@ -10,6 +10,7 @@ use Parse::RecDescent;
 use Config::Maker;
 use Config::Maker::Encode;
 use Config::Maker::Option;
+use Config::Maker::Option::Meta;
 use Config::Maker::Type;
 
 our $parser = $Config::Maker::parser;
@@ -17,9 +18,32 @@ our $parser = $Config::Maker::parser;
 # Now to the parser itself...
 
 sub new {
-    my ($class, $file) = @_;
+    my ($class, $root) = @_;
+
+    unless(UNIVERSAL::isa($root, 'Config::Maker::Option')) {
+	# We didn't get a Config::Maker::Option, so let's assume we've got
+	# a filename
+	my $type = Config::Maker::Type->root;
+
+	my $children = $class->read($root, $type);
+
+	$root = $type->instantiate({ -children => $children });
+    }
+
+    bless {
+	root => $root,
+	meta => Config::Maker::Option::Meta->new(
+		    -type => Config::Maker::Type->meta()
+		),
+    }, $class;
+}
+
+sub read {
+    my ($class, $file, $type) = @_;
     my ($fh, $text);
     my $enc = 'system';
+
+    $file = Config::Maker::locate($file);
 
     open($fh, '<', $file)
 	or croak "Failed to open $file: $!";
@@ -36,12 +60,21 @@ sub new {
     $text = decode($enc, $text);
 
     LOG("Loading configuration from $file using encoding $enc");
-    my $root = $parser->configuration($text);
+    my $options = $parser->configuration($text, undef, $type);
     croak "Configuration file $file contained errors"
-	unless defined $root;
+	unless defined $options;
 
-    bless { root => $root }, $class;
-    # FIXME -- the object may be needed earlier...
+    return $options;
+}
+
+sub meta {
+    my ($self, $name) = @_;
+    $self->{meta}->get($name);
+}
+
+sub set_meta {
+    my ($self, $name, $value) = @_;
+    $self->{meta}->set_child($name, $value);
 }
 
 1;

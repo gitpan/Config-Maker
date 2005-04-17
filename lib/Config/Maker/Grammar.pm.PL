@@ -53,7 +53,15 @@ perl_codeblock :
 
 path_whole : <skip: ''> path eof { $item{path}; }
 
-path : '' <skip: ''> separator relpath
+path : '' <skip: ''> metaroot relpath
+       {
+	   new Config::Maker::Path::Meta(-tail => $item[-1]);
+       }
+     | '' <skip: ''> metaroot
+       {
+	   new Config::Maker::Path::Meta();
+       }
+     | '' <skip: ''> separator relpath
        {
 	   new Config::Maker::Path::Root(-tail => $item[-1]);
        }
@@ -112,6 +120,8 @@ glob : /([[:alnum:].@%*=?|_\[\]{}-]|\\.)+/
 
 nonglob : /\Q$arg[0]\E(?![[:alnum:].@%*=?|_\\\[\]{}-])/
 
+metaroot : 'META:'
+
 separator : /\/+/
 
 ################################################### TEMPLATE GRAMMAR ##########
@@ -146,6 +156,12 @@ directive : '[+' <commit> <skip: qr/\s*/> identifier optpath '+]'
 		my $key = $item{identifier};
 		my $path = $item{optpath};
 		sub { print $_->get1($path)->{-$key}; }
+	    }
+	  | <error?> <reject>
+
+directive : '[<' <skip: ''> <commit> /[^>]+/ '>]' space
+	    {
+		Config::Maker::Driver->load($item[4]);
 	    }
 	  | <error?> <reject>
 
@@ -201,6 +217,8 @@ ifrest : opener['elsif', pair => ['identifier'], ['path']] <commit>
 	     my @parts = @{$item[3]};
 	     my $else = $item[4];
 	     sub {
+		 die "No if test '$test'"
+		     unless $Config::Maker::Path::checks{$test};
 		 if($Config::Maker::Path::checks{$test}($path)) {
 		     Config::Maker::Driver::apply(@parts);
 		 } else {
@@ -240,6 +258,8 @@ directive : opener['if', pair => ['identifier'], ['path']] <commit>
 		my @parts = @{$item[3]};
 		my $else = $item[4];
 		sub {
+		    die "No if test '$test'"
+			unless $Config::Maker::Path::checks{$test};
 		    if($Config::Maker::Path::checks{$test}($path)) {
 			Config::Maker::Driver::apply(@parts);
 		    } else {
@@ -248,6 +268,27 @@ directive : opener['if', pair => ['identifier'], ['path']] <commit>
 		}
 	    }
 
+directive : opener['output', 'identifier'] <commit>
+	    directive(s) closer['output']
+	    {
+		my $key = $item[1];
+		my @parts = @{$item[3]};
+		my ($cache, $output) =
+		    $key eq 'all'        ? (1, 1) :
+		    $key eq 'both'       ? (1, 1) :
+		    $key eq 'only-cache' ? (1, 0) :
+		    $key eq 'no-cache'   ? (0, 1) :
+		    $key eq 'only-out'   ? (0, 1) :
+		    $key eq 'no-out'     ? (1, 0) :
+				           die "Bad output option: $key";
+		sub {
+		    die "output limiting only works when cache is enabled"
+			unless UNIVERSAL::isa(select(), 'Config::Maker::Tee');
+		    local $Config::Maker::Tee::CACHE = $cache;
+		    local $Config::Maker::Tee::OUT = $output;
+		    Config::Maker::Driver::apply(@parts);
+		}
+	    }
 
 space : <skip: ''> /[ \t]*\n?/
 
@@ -256,15 +297,17 @@ space : <skip: ''> /[ \t]*\n?/
 # Starting rule. This is the list of all options...
 configuration :
 	<skip: qr/(\s|#[^\n]*)*/>
-	option[Config::Maker::Type->root](s?)
+	option[$arg[0]](s?)
 	eof
-	{ Config::Maker::Type->root->instantiate({ -children => $item[2]}); }
+	{ $item[2]; }
     |
 	<error>
 
 # Signle option. First the identifier is read and appropriate identifier
 # obtained. It tells use how to read rest of it.
 option :
+	block[@arg]
+    |
 	type[@arg] <commit>
 	body[$item[1], $item[1]->body]
 	{
@@ -286,22 +329,32 @@ type :	identifier
 
 body :	<matchrule: body_$arg[1]>[$arg[0], @arg[2..$#arg]]
 
+block :
+	'{' option[$arg[0]](s?) '}'
+	{ $item[2]; }
+    |
+	'<' <skip: ''> /[^>]+/ '>'
+	{
+	    Config::Maker::Config->read($item[3], $arg[0]);
+	}
+    | <error>
+
 body_simple :
 	value[@{$arg[1]}] ';'
 	{ +{ -value => $item[1] }; }
     | <error>
 
 body_anon_group :
-	'{' option[$arg[0]](s?) '}'
-	{ +{ -children => $item[2] }; }
+	block[$arg[0]]
+	{ +{ -children => $item[1] }; }
     | <error>
 
 body_named_group :
 	value[@{$arg[1]}]
-	'{' option[$arg[0]](s?) '}'
+	block[$arg[0]]
 	{ +{
 	    -value => $item[1],
-	    -children => $item[3],
+	    -children => $item[2],
 	}; }
     | <error>
 

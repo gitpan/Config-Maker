@@ -10,6 +10,7 @@ require Config::Maker::Path::Root;
 require Config::Maker::Path::AnyPath;
 require Config::Maker::Path::This;
 require Config::Maker::Path::Parent;
+require Config::Maker::Path::Meta;
 
 use overload
     'cmp' => \&Config::Maker::truecmp,
@@ -42,7 +43,7 @@ sub glob_to_re {
     return qr/.*/ if (!defined $patt);
     return qr/$patt/ if ($patt =~ s/^RE://);
 
-    $patt =~ s/([^\\])|(\\.)/$1 ? _glob_to_re($1) : $2/eg;
+    $patt =~ s/([^\\])|(\\.)/defined $1 ? _glob_to_re($1) : $2/eg;
     qr/^$patt$/;
 }
 

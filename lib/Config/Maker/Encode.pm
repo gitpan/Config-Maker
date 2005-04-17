@@ -8,11 +8,14 @@ use Carp;
 
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(encode decode encmode);
+our @EXPORT = qw(encode decode encmode $utf8);
+our @EXPORT_OK = @EXPORT;
 
 sub encode($$;$);
 sub decode($$;$);
 sub encmode(*$);
+
+our $utf8;
 
 sub _encode_only_system($$;$) {
     my ($enc, $text, $check) = @_;
@@ -61,10 +64,12 @@ if($@) { # Encoding stuff not available!
     *encode = \&_encode_only_system;
     *decode = \&_encode_only_system;
     *encmode = \&_binmode_only_system;
+    $utf8 = '';
 } else { # Wow! Encoding is available!
     *encode = \&Encode::encode;
     *decode = \&Encode::decode;
     *encmode = \&_binmode_encoding;
+    $utf8 = ':utf8';
     binmode STDERR, ':encoding(system)';
 }
 

@@ -34,6 +34,14 @@ my $output = type(
     contexts => [opt => '/'],
 );
 
+# Top-level element "cache-dir"
+
+my $cached = type(
+    name => 'cache-dir',
+    format => [simple => ['string']],
+    contexts => [opt => '/'],
+);
+
 # Top-level element "config"
 
 my $config = type(
@@ -69,26 +77,34 @@ my $command = type(
 );
 $template->addchecks(mand => 'out|command');
 
+my $cache = type(
+    name => 'cache',
+    format => [simple => ['string']],
+    contexts => [opt => $template],
+);
+
 my $enc = type(
     name => 'enc',
     format => [simple => ['string']],
     contexts => [opt => $template],
 );
 
-sub _find {
-    my ($file, @path) = @_;
-    if(File::Spec->file_name_is_absolute($file)) {
-	return $file;
-    } else {
-	for(@path) {
-	    my $f = File::Spec->rel2abs($file, $_);
-	    DBG "Trying: $f";
-	    return $f if -r $f;
-	}
-	local $" = ', ';
-	croak "Can't find $file in @path";
-    }
+# Metatypes...
+
+sub metatype {
+    my ($name) = @_;
+    type(
+	name => $name,
+	format => [simple => ['string']],
+	contexts => [opt => '//'],
+    );
 }
+
+metatype('meta');
+metatype('template');
+metatype('output');
+
+# And now the real code...
 
 sub _qual($$) {
     my ($file, $dir) = @_;
@@ -101,46 +117,66 @@ sub _qual($$) {
 }
 
 sub _get_cfg {
-    Config::Maker::Config->new(_find(@_));
+    Config::Maker::Config->new(@_);
 }
 
 our @unlink;
 
 sub do {
-    my ($class, $metaname, $noinst) = @_;
+    my ($class, $metaname, $noinst, $force) = @_;
     
     my $meta = Config::Maker::Config->new($metaname)->{root};
 
-    my @path = @{$meta->getval('search-path', ['/etc/'])};
-    { local $"=', '; DBG "Search path: @path"; }
+    local @Config::Maker::path = @{$meta->getval('search-path', ['/etc/'])};
+    { local $"=', '; DBG "Search path: @Config::Maker::path"; }
 
     my $outdir = $meta->getval('output-dir', '/etc/');
     DBG "Output-dir: $outdir";
 
+    my $cachedir = $meta->getval('cache-dir', '/var/cache/configit/');
+    DBG "Cache-dir: $cachedir";
+
     # For each config file and each template...
     for my $cfg ($meta->get('config')) {
 	LOG "Processing config $cfg";
-	my $conf = _get_cfg($cfg->{-value}, @path);
+	my $conf = _get_cfg($cfg->{-value});
 	for my $tmpl ($cfg->get('template')) {
-	    my ($fh, $name);
-	    $name = $tmpl->get('out');
-	    if($name) {
-		$name = _qual($name, $outdir);
+	    my ($fh, $name, $cache, $output);
+
+	    # Find output name...
+	    $output = $tmpl->get('out');
+	    if($output) {
+		$output = _qual($output, $outdir);
 		($fh, $name) = tempfile(
-		    basename($name, qr/\..*/) . ".cmXXXXXX",
-		    DIR => dirname($name));
+		    basename($output, qr/\..*/) . ".cmXXXXXX",
+		    DIR => dirname($output));
 	    } else {
+		$output = '';
 		($fh, $name) = tempfile(
 		    basename($tmpl->get1('src'), qr/\..*/) . ".cmXXXXXXXX",
 		    DIR => File::Spec->tmpdir);
 	    }
 	    DBG "Using $name as temporary for $tmpl output";
 	    push @unlink, $name;
+
+	    # Find cache name...
+	    $cache = $tmpl->get('cache');
+	    if($cache) {
+		$cache = _qual($cache, $cachedir);
+		$fh = Config::Maker::Tee->new($fh, $cache);
+	    }
+
+	    # Set up the magical elements for the config...
+	    $conf->set_meta(meta => $meta);
+	    $conf->set_meta(template => $tmpl);
+	    $conf->set_meta(output => $output);
+	    # Process the thing...
 	    Config::Maker::Driver->process(
-		_find($tmpl->get1('src'), @path),
+		$tmpl->get1('src'),
 		$conf, $fh, $tmpl->get('enc'),
 	    );
-	    $tmpl->{-data} = [$fh, $name];
+
+	    $tmpl->{-data} = [$fh, $name, $cache];
 	    close $fh;
 	}
     }
@@ -148,7 +184,11 @@ sub do {
     # Now, for each template install the temporary file...
     if($noinst) {
 	for my $tmpl ($meta->get('config/template')) {
-	    my ($fh, $name) = @{$tmpl->{-data}};
+	    my ($fh, $name, $cache) = @{$tmpl->{-data}};
+	    if($cache && $fh->cmpcache) {
+		LOG "Output of ".$tmpl->get('src')." unchanged";
+		next unless $force;
+	    }
 	    @unlink = grep { $_ ne $name } @unlink;
 	    my $dest;
 	    if($dest = _qual($tmpl->get('out'), $outdir)) {
@@ -160,7 +200,11 @@ sub do {
 	}
     } else {
 	for my $tmpl ($meta->get('config/template')) {
-	    my ($fh, $name) = @{$tmpl->{-data}};
+	    my ($fh, $name, $cache) = @{$tmpl->{-data}};
+	    if($cache && $fh->cmpcache) {
+		LOG "Output of ".$tmpl->get('src')." unchanged";
+		next unless $force;
+	    }
 	    my $dest;
 	    if($dest = _qual($tmpl->get('out'), $outdir)) {
 		LOG "Installing $dest";
@@ -182,6 +226,9 @@ sub do {
 		waitpid($pid, 0) != -1
 		    or croak "Wait failed: $!";
 		croak "Command failed: $?" if "$?";
+	    }
+	    if($cache) {
+		$fh->savecache;
 	    }
 	}
     }

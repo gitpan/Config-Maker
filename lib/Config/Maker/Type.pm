@@ -18,12 +18,18 @@ use overload
     fallback => 1;
 
 our $root;
+our $meta;
 our $repository;
 our %checks;
 
 # Get top-level context ('/' special type):
 sub root {
     $root;
+}
+
+# Get special meta content ('//' special type)
+sub meta {
+    $meta;
 }
 
 # Get repository context ('*' special type). The repository is a special type
@@ -166,6 +172,12 @@ $root = __PACKAGE__->new(
     name => '/',
     format => [],
 ); # Default context (in repository only) should work here...
+
+# And last but not least the meta type...
+$meta = __PACKAGE__->new(
+    name => '//',
+    format => [],
+); # Default context (in repository only) should work here too...
 
 # Checking functions:
 

@@ -28,7 +28,7 @@ BEGIN {
     }
 
     if($::DEBUG) {
-	require Data::Dumper::Dumper;
+	require Data::Dumper;
 	*DUMP = sub {
 	    print STDERR '>' x 40, ' ', shift, "\n",
 		Data::Dumper::Dumper(@_),
@@ -52,7 +52,7 @@ use Config::Maker::Grammar; # Build the parser...
 
 our $parser = Config::Maker::Grammar->new();
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 
 use Exporter;
 our @ISA = qw(Exporter);
@@ -140,6 +140,24 @@ sub exe {
 	die $@ if $@;
     }
 }
+
+our @path = ('.');
+
+sub locate {
+    my ($file) = @_;
+    if(File::Spec->file_name_is_absolute($file)) {
+	return $file;
+    } else {
+	for(@path) {
+	    my $f = File::Spec->rel2abs($file, $_);
+	    DBG "Trying: $f";
+	    return $f if -r $f;
+	}
+	local $" = ', ';
+	croak "Can't find $file in @path";
+    }
+}
+
 
 $::RD_HINT = 1;
 

@@ -2,6 +2,157 @@
 # arch-tag: automatic-ChangeLog--bulb@ucw.cz--pub-1/config-it--release--0
 #
 
+2005-04-17 20:28:00 GMT	Jan Hudec <bulb@ucw.cz>	patch-7
+
+    Summary:
+      New largish release, first one considered beta.
+    Revision:
+      config-it--release--0--patch-7
+
+        * Including for configs and templates
+        * Speed up with caching a little
+        * Installation is now only done if the file actually changed
+            + Some data may be skipped for comparison
+            + Some data may be skipped for actual output
+        * Added special metadata paths that allow access to
+            + Metaconfig
+            + Current template specification
+            + Name of output file
+        * DNSSerial utility for generating SOA serials for DNS zones            
+    
+    Patches applied:
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-84
+       Fixed problems with wrong test.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-85
+       Killed one spurious warning.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-86
+       Fix one bogus require
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-87
+       Split Config constructor
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-88
+       Factored out 'block' production
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-89
+       Founded config syntax test
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-90
+       Tested and fixed includes.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-91
+       One more test for includes; seems to work.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-92
+       Splited Driver->process method
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-93
+       Added and tested include directive for templates
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-94
+       Documentation for include directives.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-95
+       Prepared for output to cache
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-96
+       Reworked Config::Maker::Tee to cache to string
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-97
+       Caching seems to work now.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-98
+       Added template directive 'output'
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-99
+       Cache works and is documented.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-100
+       Search-patch used for includes
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-101
+       Included templates are now cached.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-102
+       Fixed bug in path regexp creation
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-103
+       Shut-up some warnings.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-104
+       Added some global variables
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-105
+       Replaced the meta-variables with meta-paths
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-106
+       Bugfixes of previous commit
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-107
+       Fixed the metadata to actually work
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-108
+       Documentation for recent path changes and a small enhancement.
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-109
+       Added DNSSerial utility...
+    
+     * bulb@ucw.cz--pub-1/config-it--main--0--patch-110
+       Fix stupid mistake in DNSSerial
+    
+
+    new files:
+     lib/Config/Maker/Eval/.arch-ids/=id
+     lib/Config/Maker/Eval/DNSSerial.pm
+     lib/Config/Maker/Option/.arch-ids/=id
+     lib/Config/Maker/Option/Meta.pm lib/Config/Maker/Path/Meta.pm
+     lib/Config/Maker/Tee.pm t/cache.t t/config.t
+
+    modified files:
+     configit lib/Config/Maker.pm lib/Config/Maker/Config.pm
+     lib/Config/Maker/Driver.pm lib/Config/Maker/Encode.pm
+     lib/Config/Maker/Grammar.pm.PL lib/Config/Maker/Metaconfig.pm
+     lib/Config/Maker/Option.pm lib/Config/Maker/Path.pm
+     lib/Config/Maker/Path/Root.pm lib/Config/Maker/Type.pm
+     t/code.t t/template.t
+
+    new directories:
+     lib/Config/Maker/Eval lib/Config/Maker/Eval/.arch-ids
+     lib/Config/Maker/Option lib/Config/Maker/Option/.arch-ids
+
+    new patches:
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-84
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-85
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-86
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-87
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-88
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-89
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-90
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-91
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-92
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-93
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-94
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-95
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-96
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-97
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-98
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-99
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-100
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-101
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-102
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-103
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-104
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-105
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-106
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-107
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-108
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-109
+     bulb@ucw.cz--pub-1/config-it--main--0--patch-110
+
+
 2004-11-25 21:12:19 GMT	Jan Hudec <bulb@ucw.cz>	patch-6
 
     Summary:

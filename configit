@@ -10,7 +10,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # Do option parsing early, so we can set-up debugging...
-use vars qw($res $noinst $QUIET $VERBOSE $DEBUG $help $man);
+use vars qw($res $noinst $force $QUIET $VERBOSE $DEBUG $help $man);
 
 BEGIN {
     $noinst = 0;
@@ -20,6 +20,7 @@ BEGIN {
 	'q|quiet' => \$QUIET,
 	'v|verbose' => \$VERBOSE,
 	'n|dry-run' => \$noinst,
+	'f|force' => \$force,
 	'D|debug' => \$DEBUG,
 	'T|trace' => \$::RD_TRACE,
 	'h|help' => \$help,
@@ -45,6 +46,7 @@ BEGIN {
     if($@) {
 	require FindBin;
 	require blib;
+	no warnings;
 	blib->import($FindBin::RealBin);
     }
 }
@@ -55,7 +57,7 @@ use Config::Maker;
 pod2usage(-exit => 127, -message => "Not enough arguments") unless @ARGV;
 
 for my $file (@ARGV) {
-    Config::Maker::Metaconfig->do($file, $noinst);
+    Config::Maker::Metaconfig->do($file, $noinst, $force);
 }
 
 __END__
@@ -72,6 +74,7 @@ configit -- Tool for generating files from configuration and templates.
 	-h, --help	Display this help message.
 	-m, --man	Display manual page.
 	-n, --dry-run	Don't install the built files.
+	-f, --force	Install all output, even if equal to cache.
 	-v, --verbose	Print more progress info.
 	-q, --quiet	Don't print any progress info.
 	-D, --debug	Print debugging infromation.
@@ -80,9 +83,17 @@ configit -- Tool for generating files from configuration and templates.
 =head1 DESCRIPTION
 
 This program generates files from a metaconfig, configuration and templates.
-The metaconfiguration describes which configuration should be loaded, which
-templates should be expanded using that configuration and where the results
-should be placed.
+
+The metaconfiguration file contains two important pieces of information
+E<ndash> the schema, which says how the config should be parsed and the
+description of config files and templates to process.
+
+The config file contains data in a simple hierarchical form.
+
+The templates are text interleaved with special directives. These directives
+can select items (directives) from the config and insert their contents. It is
+possible to check whether directives are present and iterate over them. And
+when that's too weak, it allows insering snippets of Perl code.
 
 =head1 Configuration
 
@@ -95,12 +106,21 @@ optionaly followed by a value and then a block in curly braces is given, that
 can contain further directives. Each directive specifies how the value should
 look and what directives are allowed in it's block.
 
+A directive or a block can be replaced by filename in angle brackets
+(C<E<lt>E<gt>>). Contents of that file will be inserted in that place, or used
+as content of the block respectively. The file must be a valid config file on
+it's own (ie. all the directives must be closed).
+
 Comments start with a C<#> and extend to the end of line. They are
 syntacticaly equivalent to a whitespace.
 
 The directives take several types of values:
 
 =over 4
+
+=item void
+
+This is used to refer to non-value. No value may be specified.
 
 =item identifier
 
@@ -118,8 +138,9 @@ will warn if it encounters encoding specifications.
 
 =item string
 
-A string can be either a bareword (of alphanumerics and some common
-non-special characters), or a single or double-quoted string. In double-quoted string, common C<\> escape sequences and environment variables are expanded.
+A string can be either a bareword (of alphanumerics and some common non-special
+characters), or a single or double-quoted string. In double-quoted string,
+common C<\> escape sequences and environment variables are expanded.
 
 =item dns name
 
@@ -148,6 +169,10 @@ I<ipv4> followed by a slash and a number from 0 to 32.
 =item mac
 
 Six pairs of hex digits separated by colons.
+
+=item path
+
+Path, such as used in templates to select config elements. See below.
 
 =item pair
 
@@ -183,8 +208,13 @@ Files specified with relative paths are searched in these directories.
 
 =item C<ouput-dir>
 
-This simple directve takes one I<string> value, a path where output files
+This simple directive takes one I<string> value, a path where output files
 specified with relative paths should be placed.
+
+=item C<cache-dir>
+
+This simple directive takes one I<string> value, a path where cache files
+specified with relative patch should be placed (see C<cache> directive below).
 
 =item C<config>
 
@@ -214,6 +244,10 @@ This takes one I<string> value, the name of output file.
 This takes one I<string> value, the shell command to run. This command will be
 parsed by the shell and it will get the result on standard input. Either
 C<out> or C<command> directive must be specified, both may be.
+
+=item optional C<cache>
+
+This takes one I<string> value, the name of cache file. The cache file keeps a copy of output for purpose of comparing. If cache exists, output file is only installed and command only runs if the output differs from the cache. Templates that don't have cache defined are instantiated always.
 
 =item optional C<enc>
 
@@ -279,6 +313,69 @@ action for block option is run after all the actions for it's suboptions.
 The config can contain any directives described by the C<schema> in the
 metaconfig. It's completely up the the user what he wants to have there.
 
+=head1 Path
+
+Templates refer to the values from config using paths.
+
+Path is a list of components separated by C</>-es. Each component matches
+a list of options (like a wildcard matches a list of files). Result of a whole
+path is then obtained by searching the rest from all the options matched by the
+first component.
+
+If the path starts with a C</>, starting point is the config root.
+
+If the path starts with a special keyword C<META:> (case-sensitive), the
+starting point is a special meta-root.
+
+Otherwise the starting point is the current option, as set by eg. the C<map>
+directive. At the start of the template, the current option is the root. It is
+actually Perl current topic (C<$_>), so it can be affected by localizing that
+variable.
+
+Generic syntax for a component is I<type>C<:>I<value>C<(>I<condition>C<)>.
+The I<type> is a wildcard matching type of the option and I<value> is
+a wildcard matching the value. The I<condition> is a perl expression, that will
+get processed option in current topic (C<$_>) and should return true if that
+option should match. It will be evaluated in the L<Config::Maker::Eval>
+module.
+
+Wildcards are like shell ones and csh-style curlies C<{}> are understood.
+Regular expressions can be used instead by prefixing them with C<RE:>.
+
+Components can be ommited. Shorthand notations allowed are: I<type>,
+C<:>I<value>, I<type>C<(>I<condition>C<)> and C<:>I<value>C<(>I<condition>C<)>.
+
+A special component C<**> is allowed which means all options recursively. So:
+
+  /**/host
+
+means all C<host> options anywhere in the configuration, while
+
+  /host
+
+means just C<host> options on the top-level. For functions that can be used in
+the I<condition> see L<Config::Maker::Option>.
+
+In the special meta-tree, following values are available when processing
+a template:
+
+=over 4
+
+=item C<META:meta>
+
+The meta-configuration, as a whole.
+
+=item C<META:template>
+
+The contents of currently active C<template> directive. Note, that it points
+back to the actual meta-configuration, so C<META:template/..> is the name of
+the current config.
+
+=item C<META:output>
+
+Qualified name of the output file, so you can access it without having to do
+the search based on C<META:template/out> and C<META:meta/output-dir>.
+
 =head1 Template
 
 The template is a text file, that can contain special directives. Text outside
@@ -310,6 +407,12 @@ current option.
 Like above, but returns type resp. value of option with given path. Exactly one
 such option must exist.
 
+=item C<[E<lt>I<filename>E<gt>]>
+
+This includes specified file in given place. The included file is processed
+like a template and has to be valid on it's own (ie. all block directives must
+be closed).
+
 =item C<[$map> I<path>C<$]> I<text> C<[$endmap$]>
 
 This expands I<text> for all options that match I<path>.
@@ -324,7 +427,7 @@ value can be used.
 
 =item C<[$if> I<test> I<path> C<$]> I<text> I<else-or-endif>
 
-Test is one of C<no>, C<unique>, C<one>, C<exists> or C<any>. They mean the
+Test is one of C<none>, C<unique>, C<one>, C<exists> or C<any>. They mean the
 I<path> should match none, at most one, exactly one, at least one and any
 number of option. If the test succeeds, the I<text> is expanded, otherwise the
 I<else-or-endif> is expanded.
@@ -340,7 +443,7 @@ understood by perl). Otherwise it expands the I<else-or-endif>.
 
 =item C<[$elsif> I<test> I<path> C<$]> I<text> I<else-or-endif>
 
-=item C<[$slsif (>I<perlcode>C<) $]> I<text> I<else-or-endif>
+=item C<[$elsif (>I<perlcode>C<) $]> I<text> I<else-or-endif>
 
 Just like if, but expanded only if the previsous if section was not.
 
@@ -354,38 +457,41 @@ Ends the if chain. Nothing more is expanded.
 
 =back
 
+=item C<[$output >I<keyword>C<$]> I<text> C<[$endoutput$]>
+
+This allows ommiting some output from cache or from output. Eg. a serial
+number (like in DNS zone files) can only be written to output, so if the
+number differs, but contents is otherwise identical, it is not replaced.
+
+I<keyword> can be one of:
+
+=over 4
+
+=item C<all>, C<both>
+
+Text will be generated in both the cache and the output (as normal).
+
+=item C<only-cache>, C<no-out>
+
+Text will only be written to cache.
+
+=item C<only-out>, C<no-cache>
+
+Text will only be written to output.
+
 =back
 
-=head2 Path
+=back
 
-Template refers to the values from config using paths.
+=head1 Utilities
 
-Path is a list of components separated by C</>-es. Each component matches
-a list of options (like a wildcard matches a list of files). Result of a whole
-path is then obtained by searching the rest from all the options matched by the
-first component. If the path starts with a C</>, starting point is the config
-root, otherwise it is the current option (as set eg. by map directive).
+There are some utilities, that may be useful for generating various kinds of configs.
 
-Generic syntax for a component is I<type>C<:>I<value>C<(>I<condition>C<)>.
-The I<type> is a wildcard matching type of the option and I<value> is
-a wildcard matching the value. The I<condition> is a perl expression, that will
-get processed option in current topic (C<$_>) and should return true if that
-option should match. It will be evaluated in the L<Config::Maker::Eval>
-module.
+Currently the following are provided:
 
-Components can be ommited. Shorthand notations allowed are: I<type>,
-C<:>I<value>, I<type>C<(>I<condition>C<)> and C<:>I<value>C<(>I<condition>C<)>.
+=item L<Config::Maker::Eval::DNSSerial>
 
-A special component C<**> is allowed which means all options recursively. So:
-
-  /**/host
-
-means all C<host> options anywhere in the configuration, while
-
-  /host
-
-means just C<host> options on the top-level. For functions that can be used in
-the I<condition> see L<Config::Maker::Option>.
+This one generates serial numbers for SOA records of DNS zone files.
 
 =head1 AUTHOR
 
